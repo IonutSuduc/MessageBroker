@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -15,9 +16,9 @@ namespace Client
             Console.OutputEncoding = Encoding.UTF8;
             Console.InputEncoding = Encoding.UTF8;
 
-            string serverIp = "127.0.0.1";
-            int port = 5000;
-            string[] topics = { "Prestatii artistice", "Concursuri de recital", "Competitii Sportive" };
+            string serverIp = Settings.ServerIp;
+            int port = Settings.Port;
+            string[] topics = Settings.Topics;
 
             Console.WriteLine("========================================");
             Console.WriteLine("   SISTEM DE MESAGERIE - CLIENT APP    ");
@@ -148,10 +149,28 @@ namespace Client
 
                         while (client.Connected)
                         {
-                            string incomingMessage = await reader.ReadLineAsync();
-                            if (!string.IsNullOrEmpty(incomingMessage))
+                            string incomingLine = await reader.ReadLineAsync();
+                            if (!string.IsNullOrEmpty(incomingLine))
                             {
-                                Console.WriteLine($"\n> [MESAJ NOU / ISTORIC]: {incomingMessage}");
+                                // Încercăm să deserializăm linia primită ca să extragem doar Sender-ul și Conținutul
+                                try
+                                {
+                                    Message msg = JsonSerializer.Deserialize<Message>(incomingLine);
+                                    if (msg != null && !string.IsNullOrEmpty(msg.Content))
+                                    {
+                                        Console.WriteLine($"[{msg.SenderId}]: {msg.Content}");
+                                    }
+                                    else
+                                    {
+                                        // Dacă este mesaj de sistem (ex: ACK-uri), îl afișăm direct
+                                        Console.WriteLine($"{incomingLine}");
+                                    }
+                                }
+                                catch
+                                {
+                                    // Fallback dacă primul rând sau un mesaj nu este JSON valid
+                                    Console.WriteLine($"{incomingLine}");
+                                }
                             }
                         }
                     }

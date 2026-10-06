@@ -1,4 +1,4 @@
-﻿using MessageBroker_Lab1;
+﻿using Common;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace MessageBrokerApp
 {
     class BrokerServer
     {
-        private static readonly int Port = 5000;
+        private static readonly int Port = Settings.Port;
 
         private static ConcurrentDictionary<string, ConcurrentQueue<Message>> messageStorage =
             new ConcurrentDictionary<string, ConcurrentQueue<Message>>();
@@ -29,7 +29,7 @@ namespace MessageBrokerApp
 
             Console.Title = "BROKER - Server Central";
 
-            string[] topics = { "Prestatii artistice", "Concursuri de recital", "Competitii Sportive" };
+            string[] topics = Settings.Topics;
             foreach (var topic in topics)
             {
                 messageStorage[topic] = new ConcurrentQueue<Message>();

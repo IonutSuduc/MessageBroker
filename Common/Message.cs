@@ -1,4 +1,4 @@
-﻿namespace MessageBroker_Lab1
+﻿namespace Common
 {
     public class Message
     {
